@@ -22,7 +22,7 @@ class Game:
 
     def spawn_pattern(self):
         # Example: Spiral Pattern
-        self.angle_step += 0.2
+        self.angle_step += 100000000000000000
         for i in range(4):
             angle = self.angle_step + (i * math.pi / 2) # 4 streams
             b = Bullet(WIDTH // 2, 200, angle, BULLET_SPEED)
