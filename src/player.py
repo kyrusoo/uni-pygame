@@ -1,6 +1,7 @@
 # =============================================================================
 # player.py — Player entity: movement, combat, mana, leveling, rendering
-# TODO: Add sprite sheets, animation FSM, equipment slots, skill tree.
+# NOW INTEGRATES WITH INVENTORY SYSTEM for weapon/armor stats.
+# TODO: Add sprite sheets, animation FSM, skill tree.
 # =============================================================================
 
 import pygame
@@ -14,6 +15,7 @@ class Player:
     """
     The hero character.  Uses axis-aligned bounding box (AABB) physics.
     All velocity in px/s; all timers in seconds.
+    Stats (attack, defense, weapon range/rate) are now pulled from inventory.
     """
 
     WIDTH  = 28
@@ -28,21 +30,25 @@ class Player:
         self.on_ground: bool = False
         self.facing: int = 1          # 1 = right, -1 = left
 
-        # ── Stats ─────────────────────────────────────────────────────────
+        # ── Stats (base values, overridden by inventory each frame) ───────
         self.max_hp   = PLAYER_MAX_HP
         self.hp       = self.max_hp
         self.max_mana = PLAYER_MAX_MANA
         self.mana     = self.max_mana
-        self.defense  = PLAYER_DEFENSE
-        self.attack   = PLAYER_ATTACK
+        self.defense  = PLAYER_DEFENSE   # base + armor from inventory
+        self.attack   = PLAYER_ATTACK    # comes from weapon
         self.level    = 1
         self.xp       = 0
         self.xp_next  = 100   # XP needed for next level
 
+        # Weapon stats (set by scene_manager each frame from inventory)
+        self._atk_range = PLAYER_ATTACK_RANGE
+        self._atk_rate_base = PLAYER_ATTACK_RATE
+
         # ── Timers / state ────────────────────────────────────────────────
         self._iframe_timer    = 0.0   # invincibility frames remaining
         self._atk_timer       = 0.0   # melee cooldown
-        self._ranged_timer    = 0.0   # ranged cooldown
+        self._ranged_timer    = 0.0   # ranged cooldown (not used with inventory system)
         self._dash_timer      = 0.0   # dash duration
         self._dash_cd_timer   = 0.0   # dash cooldown
         self._dash_vx         = 0.0   # locked dash velocity
