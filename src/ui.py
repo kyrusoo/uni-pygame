@@ -216,3 +216,12 @@ class UI:
             self.draw_game_over(surface)
         elif victory:
             self.draw_victory(surface, player)
+
+    def draw_zone_hud(self, surface, player, zone_id):
+        """
+        HUD для обычных зон (не босса).
+        """
+        self._draw_player_hud(surface, player)
+
+        if self._time < 8.0:
+            self._draw_controls(surface)

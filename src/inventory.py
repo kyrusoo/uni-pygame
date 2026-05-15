@@ -5,13 +5,22 @@
 # TODO: Drag-and-drop, item tooltips on hover, hotbar quick-select.
 # =============================================================================
 
-import pygame
+# =============================================================================
+# inventory.py — Inventory grid, equipment slots, crafting UI
+# =============================================================================
+
 from __future__ import annotations
+
+import pygame
+
 from src.settings import *
-from src.items import (Item, ITEMS, RECIPES,
-                       CATEGORY_WEAPON, CATEGORY_ARMOR, CATEGORY_CONSUMABLE, CATEGORY_RESOURCE,
-                       SLOT_HEAD, SLOT_BODY, SLOT_LEGS,
-                       WTYPE_MELEE)
+from src.items import (
+    Item, ITEMS, RECIPES,
+    CATEGORY_WEAPON, CATEGORY_ARMOR,
+    CATEGORY_CONSUMABLE, CATEGORY_RESOURCE,
+    SLOT_HEAD, SLOT_BODY, SLOT_LEGS,
+    WTYPE_MELEE
+)
 
 
 # ── Inventory slot ────────────────────────────────────────────────────────────
