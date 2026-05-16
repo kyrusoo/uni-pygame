@@ -1,4 +1,4 @@
-import pygame as pg
+import pygame
 from settings import *
 
 class Map:
@@ -16,5 +16,5 @@ class Map:
     def draw(self, screen):
         screen.fill(self.bg_color)
         # Draw two lines/rects to simulate scrolling
-        pg.draw.line(screen, (40, 40, 40), (0, self.scroll), (WIDTH, self.scroll))
-        pg.draw.line(screen, (40, 40, 40), (0, self.scroll - HEIGHT), (WIDTH, self.scroll - HEIGHT))
+        pygame.draw.line(screen, (40, 40, 40), (0, self.scroll), (WIDTH, self.scroll))
+        pygame.draw.line(screen, (40, 40, 40), (0, self.scroll - HEIGHT), (WIDTH, self.scroll - HEIGHT))

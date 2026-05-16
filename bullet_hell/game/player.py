@@ -7,15 +7,13 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        # Get the path of the current file (game/player.py)
         current_dir = os.path.dirname(__file__)
-        # Go up one level to 'bullet_hell', then into 'assets'
         asset_path = os.path.join(current_dir, "..", "assets", "spaceship.png")
 
         self.image = pygame.image.load(asset_path).convert_alpha()
         self.rect = self.image.get_rect(center=(WIDTH // 2, HEIGHT - 100))
         self.pos = pygame.Vector2(self.rect.center)
-        self.radius = 4  # Tiny hitbox!
+        self.radius = 4  # Player hitbox
 
     def update(self):
         keys = pygame.key.get_pressed()
