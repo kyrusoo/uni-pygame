@@ -13,33 +13,33 @@
 
 import pygame
 import random
-from src.settings  import *
-from src.player    import Player
-from src.boss      import Boss
-from src.attacks   import AttackManager
+from src.settings import *
+from src.player import Player
+from src.boss import Boss
+from src.attacks import AttackManager
 from src.particles import ParticleSystem, ScreenShake
 from src.inventory import Inventory
-from src.zones     import (HomeZone, ForestZone, PathZone,
-                            ZONE_FLOOR_Y, BOSS_W, BOSS_H)
-from src.world     import World
-from src.mobs      import MobManager
+from src.zones import (HomeZone, ForestZone, PathZone,
+                       ZONE_FLOOR_Y, BOSS_W, BOSS_H)
+from src.world import World
+from src.mobs import MobManager
 
 
 # ── Fade transition helper ────────────────────────────────────────────────────
 
 class FadeTransition:
     def __init__(self):
-        self._alpha    = 0
-        self._dir      = 0      # -1 = fade out, +1 = fade in
-        self._done     = False
-        self._surface  = None
+        self._alpha = 0
+        self._dir = 0  # -1 = fade out, +1 = fade in
+        self._done = False
+        self._surface = None
         self.pending_zone = None
         self.pending_side = "left"
 
     def start_fade_out(self, to_zone: str, side: str):
-        self._dir         = 1    # darken
-        self._alpha       = 0
-        self._done        = False
+        self._dir = 1  # darken
+        self._alpha = 0
+        self._done = False
         self.pending_zone = to_zone
         self.pending_side = side
 
@@ -54,23 +54,30 @@ class FadeTransition:
     def update(self, dt):
         if self._dir == 0:
             return
-        self._alpha += int(900 * dt)
-        if self._dir == 1 and self._alpha >= 255:
-            self._alpha = 255
-            self._dir   = -1   # start fade in
-            self._done  = False
-        elif self._dir == -1:
+
+        # Накапливаем альфу во float, чтобы не зависать при мелком dt
+        if self._dir == 1:  # Затемнение (Fade out)
+            self._alpha += 900.0 * dt
+            if self._alpha >= 255:
+                self._alpha = 255
+                self._dir = -1  # Включаем осветление
+                self._done = False
+        elif self._dir == -1:  # Осветление (Fade in)
+            self._alpha -= 900.0 * dt
             if self._alpha <= 0:
                 self._alpha = 0
-                self._dir   = 0
-                self._done  = True
+                self._dir = 0  # Конец анимации
+                self._done = True
 
     def draw(self, surface):
         if self._alpha <= 0:
             return
         if self._surface is None or self._surface.get_size() != surface.get_size():
             self._surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        self._surface.fill((0, 0, 0, min(255, self._alpha)))
+
+        # Принудительно кастим к int и ограничиваем рамками 0-255
+        current_alpha = max(0, min(255, int(self._alpha)))
+        self._surface.fill((0, 0, 0, current_alpha))
         surface.blit(self._surface, (0, 0))
 
 
@@ -78,12 +85,12 @@ class FadeTransition:
 
 class ZoneBanner:
     def __init__(self):
-        self._text    = ""
-        self._timer   = 0.0
-        self._font    = pygame.font.SysFont("monospace", 36, bold=True)
+        self._text = ""
+        self._timer = 0.0
+        self._font = pygame.font.SysFont("monospace", 36, bold=True)
 
     def show(self, text: str):
-        self._text  = text
+        self._text = text
         self._timer = 2.8
 
     def update(self, dt):
@@ -92,14 +99,14 @@ class ZoneBanner:
     def draw(self, surface):
         if self._timer <= 0:
             return
-        frac  = min(1.0, self._timer / 0.6)    # fade in
+        frac = min(1.0, self._timer / 0.6)  # fade in
         if self._timer < 0.6:
-            frac = self._timer / 0.6           # fade out
+            frac = self._timer / 0.6  # fade out
         alpha = int(frac * 255)
-        surf  = self._font.render(self._text, True, (255, 220, 100))
+        surf = self._font.render(self._text, True, (255, 220, 100))
         # Dark backing
         bg = pygame.Surface((surf.get_width() + 40, surf.get_height() + 16),
-                             pygame.SRCALPHA)
+                            pygame.SRCALPHA)
         bg.fill((0, 0, 0, int(alpha * 0.6)))
         bx = SCREEN_WIDTH // 2 - bg.get_width() // 2
         by = SCREEN_HEIGHT // 3
@@ -118,16 +125,16 @@ class SceneManager:
     """
 
     ZONE_NAMES = {
-        "home":   "— Home —",
+        "home": "— Home —",
         "forest": "— Forest —",
-        "path":   "— Dungeon Path —",
-        "boss":   "— Boss Arena —",
+        "path": "— Dungeon Path —",
+        "boss": "— Boss Arena —",
     }
 
     def __init__(self):
         # ── Shared state ──────────────────────────────────────────────────
         self.inventory = Inventory()
-        self.player    = Player(x=200.0, y=float(ZONE_FLOOR_Y - Player.HEIGHT))
+        self.player = Player(x=200.0, y=float(ZONE_FLOOR_Y - Player.HEIGHT))
         self._sync_player_stats()
 
         # ── Zone instances (lazy — built on first visit) ───────────────────
@@ -136,24 +143,24 @@ class SceneManager:
         self._zone = self._get_zone("home")
 
         # ── Boss arena shared objects ──────────────────────────────────────
-        self._boss_world  = None
-        self._boss        = None
+        self._boss_world = None
+        self._boss = None
         self._boss_defeated = False
 
         # ── Per-zone attack / particle systems ────────────────────────────
         self.atk_mgr = AttackManager()
-        self.psys    = ParticleSystem()
-        self.shake   = ScreenShake()
+        self.psys = ParticleSystem()
+        self.shake = ScreenShake()
 
         # ── Transition / UI helpers ────────────────────────────────────────
-        self._fade   = FadeTransition()
+        self._fade = FadeTransition()
         self._banner = ZoneBanner()
         self._banner.show(self.ZONE_NAMES["home"])
 
         # Game states
-        self.paused    = False
+        self.paused = False
         self.game_over = False
-        self.victory   = False
+        self.victory = False
 
         # Fonts
         pygame.font.init()
@@ -164,9 +171,9 @@ class SceneManager:
     def _get_zone(self, zone_id: str):
         if zone_id not in self._zones:
             builders = {
-                "home":   HomeZone,
+                "home": HomeZone,
                 "forest": ForestZone,
-                "path":   PathZone,
+                "path": PathZone,
             }
             if zone_id in builders:
                 self._zones[zone_id] = builders[zone_id]()
@@ -180,11 +187,11 @@ class SceneManager:
         Player.attack / defense / attack_range / attack_rate all come
         from equipped items.
         """
-        inv  = self.inventory
+        inv = self.inventory
         base = PLAYER_DEFENSE
-        self.player.defense      = base + inv.total_defense
-        self.player.attack       = inv.weapon_damage or PLAYER_ATTACK
-        self.player._atk_range   = inv.weapon_range
+        self.player.defense = base + inv.total_defense
+        self.player.attack = inv.weapon_damage or PLAYER_ATTACK
+        self.player._atk_range = inv.weapon_range
         self.player._atk_rate_override = inv.weapon_rate
 
     # ── Transition ────────────────────────────────────────────────────────────
@@ -217,7 +224,7 @@ class SceneManager:
         if self._boss_world is None:
             from src.world import World
             self._boss_world = World()
-            self._boss       = Boss(
+            self._boss = Boss(
                 x=float(ARENA_WIDTH // 2),
                 y=float(FLOOR_Y),
             )
@@ -225,7 +232,7 @@ class SceneManager:
         self.player.rect.y = FLOOR_Y - Player.HEIGHT
         self.player.vx = 0.0
         self.player.vy = 0.0
-        self._zone = None   # signals "we are in boss mode"
+        self._zone = None  # signals "we are in boss mode"
 
     @property
     def in_boss(self) -> bool:
@@ -258,22 +265,21 @@ class SceneManager:
                     (SCREEN_WIDTH, SCREEN_HEIGHT)
                 )
 
+        # ОБНОВЛЯЕМ ФЕЙДЕР И БАННЕР ТУТ ОДИН РАЗ ДЛЯ ВСЕХ СОСТОЯНИЙ
+        self._fade.update(dt)
+        self._banner.update(dt)
+
         if self.paused or self.game_over or self.victory:
-            self._fade.update(dt)
-            self._banner.update(dt)
             return
 
         if self.inventory.open:
-            return   # freeze world while inventory is open
+            return  # freeze world while inventory is open
 
         # ── Fade / transition mid-frame ───────────────────────────────────
-        self._fade.update(dt)
         if self._fade.fading and self._fade.at_black and self._fade.pending_zone:
             self._do_transition(self._fade.pending_zone, self._fade.pending_side)
             self._banner.show(self.ZONE_NAMES.get(self._fade.pending_zone, ""))
             self._fade.pending_zone = None
-
-        self._banner.update(dt)
 
         # ── Sync stats from equipment ──────────────────────────────────────
         self._sync_player_stats()
@@ -321,7 +327,10 @@ class SceneManager:
     def _update_zone(self, dt, keys):
         zone = self._zone
 
-        self.player.handle_input(keys, dt, self.atk_mgr, self.psys)
+        # Block input during fade transition
+        if not self._fade.fading:
+            self.player.handle_input(keys, dt, self.atk_mgr, self.psys)
+
         self.player.update(dt, zone, self.psys)
 
         # Mob updates
@@ -339,7 +348,7 @@ class SceneManager:
             self.atk_mgr, self.player, self.psys, self.shake)
 
         # Harvesting: melee swing harvests nearby resource nodes
-        if self.player._swing_anim > 0.2:   # just started swinging
+        if self.player._swing_anim > 0.2:  # just started swinging
             drops2 = zone.try_harvest(self.player.rect, self.atk_mgr)
             for item_id in drops2:
                 self.inventory.add(item_id, 1)
@@ -354,13 +363,10 @@ class SceneManager:
         self.shake.update(dt)
 
         # ── Door interaction ──────────────────────────────────────────────
-        if not self._fade.fading:
+        if self._fade._dir == 0:  # Проверяем, что фейдер ВООБЩЕ ничего не делает (не темнеет и не светлеет)
             for door in zone.doors:
                 if door.is_nearby(self.player.rect):
-                    # E key pressed this frame?
-                    keys_down = pygame.key.get_pressed()
-                    if keys_down[pygame.K_e] and not door.locked:
-                        # Determine which side player enters from
+                    if keys[pygame.K_e] and not door.locked:
                         side = "right" if door.rect.x < zone.width // 2 else "left"
                         self._fade.start_fade_out(door.target_zone, side)
                         break
@@ -385,7 +391,7 @@ class SceneManager:
 
     def _draw_zone(self, surface, ui):
         zone = self._zone
-        cam  = zone.camera.offset
+        cam = zone.camera.offset
 
         zone.draw_bg(surface)
         zone.draw_world(surface)
@@ -403,7 +409,7 @@ class SceneManager:
                 hint = self._font_hint.render(
                     "[E] Enter " + door.label, True, (220, 200, 120))
                 surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2,
-                                   SCREEN_HEIGHT - 80))
+                                    SCREEN_HEIGHT - 80))
 
         # Bench hint
         for bench in zone.benches:
@@ -411,12 +417,12 @@ class SceneManager:
                 hint = self._font_hint.render(
                     "[I] Open inventory to craft", True, (200, 180, 100))
                 surface.blit(hint, (SCREEN_WIDTH // 2 - hint.get_width() // 2,
-                                   SCREEN_HEIGHT - 60))
+                                    SCREEN_HEIGHT - 60))
 
     def _draw_boss(self, surface, ui):
         world = self._boss_world
-        boss  = self._boss
-        cam   = world.camera.apply_shake(
+        boss = self._boss
+        cam = world.camera.apply_shake(
             (int(self.shake.offset[0]), int(self.shake.offset[1]))
             if hasattr(self.shake, 'offset') else (0, 0))
 
@@ -440,7 +446,7 @@ class SceneManager:
 
 def _calc_damage(base, defense, crit_chance, crit_multi):
     import random
-    raw    = max(1, base - defense)
+    raw = max(1, base - defense)
     is_crit = random.random() < crit_chance
     return (int(raw * crit_multi) if is_crit else raw), is_crit
 
@@ -461,7 +467,7 @@ def _resolve_boss_attacks(attack_manager, player, boss, particles, shake):
         elif proj.owner == 'player' and boss and boss.alive:
             if proj.rect.colliderect(boss.rect):
                 dmg, crit = _calc_damage(proj.damage, boss.defense,
-                                          PLAYER_CRIT_CHANCE, PLAYER_CRIT_MULTI)
+                                         PLAYER_CRIT_CHANCE, PLAYER_CRIT_MULTI)
                 boss.take_damage(dmg, crit, particles)
                 shake.add(0.2)
                 if not proj.pierce:
@@ -481,7 +487,7 @@ def _resolve_boss_attacks(attack_manager, player, boss, particles, shake):
         elif hb.owner == 'player' and boss and boss.alive:
             if hb.rect.colliderect(boss.rect):
                 dmg, crit = _calc_damage(hb.damage, boss.defense,
-                                          PLAYER_CRIT_CHANCE, PLAYER_CRIT_MULTI)
+                                         PLAYER_CRIT_CHANCE, PLAYER_CRIT_MULTI)
                 boss.take_damage(dmg, crit, particles)
                 shake.add(0.28 if not crit else 0.5)
                 consumed.add(idx)

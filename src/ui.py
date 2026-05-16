@@ -21,14 +21,14 @@ class UI:
 
     def __init__(self):
         pygame.font.init()
-        self.font_sm  = pygame.font.SysFont("monospace", 14, bold=True)
-        self.font_md  = pygame.font.SysFont("monospace", 20, bold=True)
-        self.font_lg  = pygame.font.SysFont("monospace", 28, bold=True)
-        self.font_xl  = pygame.font.SysFont("monospace", 44, bold=True)
+        self.font_sm = pygame.font.SysFont("monospace", 14, bold=True)
+        self.font_md = pygame.font.SysFont("monospace", 20, bold=True)
+        self.font_lg = pygame.font.SysFont("monospace", 28, bold=True)
+        self.font_xl = pygame.font.SysFont("monospace", 44, bold=True)
         self.font_xxl = pygame.font.SysFont("monospace", 64, bold=True)
 
         # Animated values for smooth bar transitions
-        self._hp_display   = 1.0   # fraction 0–1
+        self._hp_display = 1.0  # fraction 0–1
         self._mana_display = 1.0
         self._boss_display = 1.0
 
@@ -38,7 +38,7 @@ class UI:
 
     def _update_bars(self, player, boss, dt):
         spd = 4.0 * dt
-        self._hp_display   += (player.hp_frac   - self._hp_display)   * spd
+        self._hp_display += (player.hp_frac - self._hp_display) * spd
         self._mana_display += (player.mana_frac - self._mana_display) * spd
         if boss and boss.alive:
             self._boss_display += (boss.hp_frac - self._boss_display) * spd
@@ -59,8 +59,8 @@ class UI:
 
     def _draw_player_hud(self, surface, player):
         PAD = 14
-        W   = 200
-        H   = 20
+        W = 200
+        H = 20
 
         # HP bar
         self._bar(surface, PAD, PAD, W, H,
@@ -84,7 +84,7 @@ class UI:
 
         # Dash cooldown indicator
         dash_frac = 1.0 - (player._dash_cd_timer / PLAYER_DASH_COOLDOWN) \
-                    if player._dash_cd_timer > 0 else 1.0
+            if player._dash_cd_timer > 0 else 1.0
         dash_color = (100, 200, 255) if dash_frac >= 1.0 else (60, 80, 120)
         self._bar(surface, PAD, PAD + H * 3 + 30, W // 2, 8,
                   dash_frac, (40, 40, 80), dash_color, border=1)
@@ -98,10 +98,10 @@ class UI:
         if not boss or not boss.alive:
             return
 
-        W   = SCREEN_WIDTH - 160
-        H   = 28
-        x   = 80
-        y   = SCREEN_HEIGHT - 58
+        W = SCREEN_WIDTH - 160
+        H = 28
+        x = 80
+        y = SCREEN_HEIGHT - 58
 
         # Background strip
         strip = pygame.Surface((W + 20, H + 30), pygame.SRCALPHA)
@@ -153,13 +153,13 @@ class UI:
 
         title = self.font_xl.render("PAUSED", True, C_WHITE)
         surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2,
-                              SCREEN_HEIGHT // 2 - 80))
+                             SCREEN_HEIGHT // 2 - 80))
 
         hints = ["ESC  — Resume", "R    — Restart", "Q    — Quit"]
         for i, h in enumerate(hints):
             s = self.font_md.render(h, True, (200, 200, 200))
             surface.blit(s, (SCREEN_WIDTH // 2 - s.get_width() // 2,
-                              SCREEN_HEIGHT // 2 + i * 34))
+                             SCREEN_HEIGHT // 2 + i * 34))
 
     # ── Game Over / Victory ───────────────────────────────────────────────────
 
@@ -170,12 +170,12 @@ class UI:
 
         t = self.font_xxl.render("YOU DIED", True, (220, 40, 40))
         surface.blit(t, (SCREEN_WIDTH // 2 - t.get_width() // 2,
-                          SCREEN_HEIGHT // 2 - 70))
+                         SCREEN_HEIGHT // 2 - 70))
 
         sub = self.font_md.render("Press R to restart  |  Q to quit",
                                   True, (180, 180, 180))
         surface.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2,
-                            SCREEN_HEIGHT // 2 + 30))
+                           SCREEN_HEIGHT // 2 + 30))
 
     def draw_victory(self, surface, player):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -184,7 +184,7 @@ class UI:
 
         t = self.font_xxl.render("BOSS SLAIN!", True, (255, 220, 50))
         surface.blit(t, (SCREEN_WIDTH // 2 - t.get_width() // 2,
-                          SCREEN_HEIGHT // 2 - 80))
+                         SCREEN_HEIGHT // 2 - 80))
 
         stats = [
             f"HP Remaining: {player.hp} / {player.max_hp}",
@@ -194,7 +194,7 @@ class UI:
         for i, line in enumerate(stats):
             s = self.font_md.render(line, True, (220, 220, 220))
             surface.blit(s, (SCREEN_WIDTH // 2 - s.get_width() // 2,
-                              SCREEN_HEIGHT // 2 - 10 + i * 34))
+                             SCREEN_HEIGHT // 2 - 10 + i * 34))
 
     # ── Main draw call ────────────────────────────────────────────────────────
 
@@ -217,11 +217,23 @@ class UI:
         elif victory:
             self.draw_victory(surface, player)
 
-    def draw_zone_hud(self, surface, player, zone_id):
-        """
-        HUD для обычных зон (не босса).
-        """
+    # ── Zone HUD (for non-boss zones) ─────────────────────────────────────────
+
+    def draw_zone_hud(self, surface, player, zone_name=""):
+        """Simplified HUD for exploration zones (no boss bar)."""
         self._draw_player_hud(surface, player)
 
-        if self._time < 8.0:
-            self._draw_controls(surface)
+        # Zone name label
+        if zone_name and self._time < 5.0:
+            zone_label = {
+                "home": "— Home —",
+                "forest": "— Forest —",
+                "path": "— Dungeon Path —",
+            }.get(zone_name, zone_name)
+
+            frac = min(1.0, self._time / 0.5) if self._time < 4.5 else (5.0 - self._time) / 0.5
+            alpha = int(frac * 255)
+
+            label_surf = self.font_lg.render(zone_label, True, (200, 180, 100))
+            label_surf.set_alpha(alpha)
+            surface.blit(label_surf, (SCREEN_WIDTH // 2 - label_surf.get_width() // 2, 40))

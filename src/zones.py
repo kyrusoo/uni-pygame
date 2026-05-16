@@ -15,18 +15,17 @@
 import pygame
 import random
 from src.settings import *
-from src.world    import World, Platform, Camera, ParallaxBackground
-from src.mobs     import (MobManager, Goblin, Eyebat, StoneGolem,
-                           ForestGuardian, CaveWarden)
-
+from src.world import World, Platform, Camera, ParallaxBackground
+from src.mobs import (MobManager, Goblin, Eyebat, StoneGolem,
+                      ForestGuardian, CaveWarden)
 
 # ── Zone floor & arena sizes ──────────────────────────────────────────────────
-HOME_W,   HOME_H   = 1400, 900
+HOME_W, HOME_H = 1400, 900
 FOREST_W, FOREST_H = 3600, 900
-PATH_W,   PATH_H   = 3000, 900
-BOSS_W,   BOSS_H   = ARENA_WIDTH, ARENA_HEIGHT
+PATH_W, PATH_H = 3000, 900
+BOSS_W, BOSS_H = ARENA_WIDTH, ARENA_HEIGHT
 
-ZONE_FLOOR_Y = 830    # same as main FLOOR_Y
+ZONE_FLOOR_Y = 830  # same as main FLOOR_Y
 
 
 # ── Resource node (tree / stone) ──────────────────────────────────────────────
@@ -36,15 +35,16 @@ class ResourceNode:
     Clickable/attackable world object that drops materials.
     kind: 'tree' | 'stone'
     """
+
     def __init__(self, x, y, kind="tree"):
-        self.kind    = kind
-        self.x       = x
-        self.y       = y
-        self.hp      = 40 if kind == "tree" else 60
-        self.max_hp  = self.hp
-        self.alive   = True
+        self.kind = kind
+        self.x = x
+        self.y = y
+        self.hp = 40 if kind == "tree" else 60
+        self.max_hp = self.hp
+        self.alive = True
         self.respawn_timer = 0.0
-        self._shake  = 0.0
+        self._shake = 0.0
 
         w = 40 if kind == "tree" else 36
         h = 80 if kind == "tree" else 44
@@ -61,7 +61,7 @@ class ResourceNode:
         self._shake = 0.15
         self.hp -= damage
         if self.hp <= 0:
-            self.hp    = 0
+            self.hp = 0
             self.alive = False
             qty = random.randint(3, 6)
             return [self.drop_item] * qty
@@ -73,7 +73,7 @@ class ResourceNode:
             self.respawn_timer += dt
             if self.respawn_timer > 20.0:
                 self.alive = True
-                self.hp    = self.max_hp
+                self.hp = self.max_hp
                 self.respawn_timer = 0.0
 
     def draw(self, surface, camera_offset):
@@ -103,7 +103,7 @@ class ResourceNode:
 
         # HP bar
         if self.hp < self.max_hp:
-            bw   = self.rect.w
+            bw = self.rect.w
             fill = int(bw * self.hp / self.max_hp)
             pygame.draw.rect(surface, (60, 30, 10), (cx, cy - 8, bw, 5))
             pygame.draw.rect(surface, (180, 120, 40), (cx, cy - 8, fill, 5))
@@ -116,14 +116,15 @@ class Door:
     A visible door rectangle. When player overlaps + presses E,
     triggers a zone transition.
     """
+
     def __init__(self, x, y, target_zone: str, label: str,
                  locked=False, lock_hint=""):
-        self.rect        = pygame.Rect(x, y, 40, 70)
+        self.rect = pygame.Rect(x, y, 40, 70)
         self.target_zone = target_zone
-        self.label       = label
-        self.locked      = locked
-        self.lock_hint   = lock_hint
-        self._font       = None
+        self.label = label
+        self.locked = locked
+        self.lock_hint = lock_hint
+        self._font = None
 
     def _get_font(self):
         if not self._font:
@@ -142,7 +143,7 @@ class Door:
 
         # Frame
         pygame.draw.rect(surface, (80, 55, 30), (cx - 4, cy - 4,
-                         self.rect.w + 8, self.rect.h + 4))
+                                                 self.rect.w + 8, self.rect.h + 4))
         # Door fill
         col = (50, 30, 10) if not self.locked else (40, 40, 50)
         pygame.draw.rect(surface, col, (cx, cy, self.rect.w, self.rect.h))
@@ -168,7 +169,7 @@ class Door:
         if self.locked and self.lock_hint:
             hint = font.render(self.lock_hint, True, (160, 80, 80))
             surface.blit(hint, (cx + self.rect.w // 2 - hint.get_width() // 2,
-                               cy - 32))
+                                cy - 32))
 
 
 # ── Crafting bench ────────────────────────────────────────────────────────────
@@ -210,23 +211,23 @@ class Zone:
     Subclasses define platforms, doors, mobs, resource nodes.
     """
 
-    name       = "base"
-    width      = 1400
-    height     = 900
-    floor_y    = ZONE_FLOOR_Y
+    name = "base"
+    width = 1400
+    height = 900
+    floor_y = ZONE_FLOOR_Y
 
     # Spawn point for player entering from left / right
-    spawn_left  = (120, ZONE_FLOOR_Y - 52)
+    spawn_left = (120, ZONE_FLOOR_Y - 52)
     spawn_right = (1280, ZONE_FLOOR_Y - 52)
 
     def __init__(self):
-        self.camera    = Camera()
-        self.bg        = ParallaxBackground()
-        self.platforms : list[Platform]     = []
-        self.doors     : list[Door]         = []
-        self.nodes     : list[ResourceNode] = []
-        self.benches   : list[CraftingBench]= []
-        self.mob_mgr   = MobManager()
+        self.camera = Camera()
+        self.bg = ParallaxBackground()
+        self.platforms: list[Platform] = []
+        self.doors: list[Door] = []
+        self.nodes: list[ResourceNode] = []
+        self.benches: list[CraftingBench] = []
+        self.mob_mgr = MobManager()
 
         self._build()
 
@@ -247,7 +248,7 @@ class Zone:
                     if (entity_rect.bottom > plat.rect.top and
                             entity_rect.centery < plat.rect.top + 40):
                         entity_rect.bottom = plat.rect.top
-                        vy       = 0.0
+                        vy = 0.0
                         on_ground = True
                 elif vy < 0:
                     entity_rect.top = plat.rect.bottom
@@ -320,9 +321,9 @@ class Zone:
 # =============================================================================
 
 class HomeZone(Zone):
-    name        = "home"
-    width       = HOME_W
-    spawn_left  = (200, ZONE_FLOOR_Y - 52)
+    name = "home"
+    width = HOME_W
+    spawn_left = (200, ZONE_FLOOR_Y - 52)
     spawn_right = (HOME_W - 200, ZONE_FLOOR_Y - 52)
 
     def _build(self):
@@ -362,7 +363,7 @@ class HomeZone(Zone):
         fp_x = 140 - cam[0]
         fp_y = ZONE_FLOOR_Y - 100 - cam[1]
         pygame.draw.rect(surface, (50, 30, 10), (fp_x, fp_y, 60, 90))
-        pygame.draw.rect(surface, (20, 12, 5),  (fp_x + 10, fp_y + 20, 40, 70))
+        pygame.draw.rect(surface, (20, 12, 5), (fp_x + 10, fp_y + 20, 40, 70))
         import math, time
         t = time.time()
         for fi in range(4):
@@ -391,9 +392,9 @@ class HomeZone(Zone):
 # =============================================================================
 
 class ForestZone(Zone):
-    name        = "forest"
-    width       = FOREST_W
-    spawn_left  = (150, ZONE_FLOOR_Y - 52)
+    name = "forest"
+    width = FOREST_W
+    spawn_left = (150, ZONE_FLOOR_Y - 52)
     spawn_right = (FOREST_W - 150, ZONE_FLOOR_Y - 52)
 
     def _build(self):
@@ -403,16 +404,16 @@ class ForestZone(Zone):
         # Varied terrain platforms
         layout = [
             (300, 700, 160, 20), (650, 650, 200, 20),
-            (1000, 590, 180, 20),(1350, 660, 220, 20),
-            (1700, 600, 160, 20),(2050, 660, 200, 20),
-            (2400, 590, 180, 20),(2750, 650, 220, 20),
-            (3100, 700, 160, 20),(3400, 640, 200, 20),
+            (1000, 590, 180, 20), (1350, 660, 220, 20),
+            (1700, 600, 160, 20), (2050, 660, 200, 20),
+            (2400, 590, 180, 20), (2750, 650, 220, 20),
+            (3100, 700, 160, 20), (3400, 640, 200, 20),
         ]
         for x, y, w, h in layout:
             self.platforms.append(Platform(x, y, w, h))
 
         # Trees and stones scattered across
-        tree_xs  = [250, 500, 750, 1100, 1450, 1800, 2200, 2600, 3000, 3350]
+        tree_xs = [250, 500, 750, 1100, 1450, 1800, 2200, 2600, 3000, 3350]
         stone_xs = [400, 700, 950, 1250, 1650, 2000, 2400, 2800, 3150]
         for tx in tree_xs:
             self.nodes.append(ResourceNode(tx, ZONE_FLOOR_Y, "tree"))
@@ -433,11 +434,33 @@ class ForestZone(Zone):
 
         # Mobs — spread across the zone (spawn a few at fixed positions)
         mob_spawns_goblin = [600, 1000, 1400, 1900, 2300, 2700, 3100]
-        mob_spawns_golem  = [900, 1600, 2500, 3300]
+        mob_spawns_golem = [900, 1600, 2500, 3300]
         for mx in mob_spawns_goblin:
             self.mob_mgr.add(Goblin(mx, ZONE_FLOOR_Y))
         for mx in mob_spawns_golem:
             self.mob_mgr.add(StoneGolem(mx, ZONE_FLOOR_Y))
+
+    def draw_bg(self, surface):
+        """Forest outdoor aesthetic with sky and parallax."""
+        # Sky gradient
+        surface.fill((60, 100, 140))
+
+        # Parallax background (hills/mountains)
+        self.bg.draw(surface, self.camera.x)
+
+        # Ground/grass layer
+        cam = self.camera.offset
+        floor_sy = ZONE_FLOOR_Y - cam[1]
+        pygame.draw.rect(surface, (40, 80, 40),
+                         (0, floor_sy, SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # Grass edge highlight
+        pygame.draw.rect(surface, (60, 120, 60),
+                         (0, floor_sy, SCREEN_WIDTH, 8))
+
+        # Draw platforms
+        for p in self.platforms:
+            p.draw(surface, self.camera.offset)
 
 
 # =============================================================================
@@ -446,9 +469,9 @@ class ForestZone(Zone):
 # =============================================================================
 
 class PathZone(Zone):
-    name        = "path"
-    width       = PATH_W
-    spawn_left  = (150, ZONE_FLOOR_Y - 52)
+    name = "path"
+    width = PATH_W
+    spawn_left = (150, ZONE_FLOOR_Y - 52)
     spawn_right = (PATH_W - 150, ZONE_FLOOR_Y - 52)
 
     def __init__(self):
@@ -460,8 +483,8 @@ class PathZone(Zone):
 
         # Dungeon-style stepped layout
         layout = [
-            (200,  700, 200, 20), (500,  640, 180, 20),
-            (850,  580, 220, 20), (1150, 520, 180, 20),
+            (200, 700, 200, 20), (500, 640, 180, 20),
+            (850, 580, 220, 20), (1150, 520, 180, 20),
             (1500, 580, 200, 20), (1800, 640, 180, 20),
             (2100, 580, 220, 20), (2400, 520, 200, 20),
             (2700, 640, 180, 20),
@@ -498,9 +521,8 @@ class PathZone(Zone):
         super().update(dt, player_rect)
         # Count dead medium bosses to unlock door
         from src.mobs import MediumBoss
-        dead = sum(1 for m in self.mob_mgr.mobs
-                   if isinstance(m, MediumBoss) and not m.alive)
-        if dead >= 2:
+        active_bosses = sum(1 for m in self.mob_mgr.mobs if isinstance(m, MediumBoss))
+        if active_bosses == 0:
             self._boss_door.locked = False
 
     def draw_bg(self, surface):
