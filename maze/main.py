@@ -14,6 +14,10 @@ from pathfinding import *
 class Game:
     def __init__(self):
         pg.init()
+        pg.mixer.init()
+        pg.mixer.music.load('resources/sound/theme.mp3')
+        pg.mixer.music.play(-1)
+        pg.mixer.music.set_volume(0.01)
         pg.mouse.set_visible(False)
         self.screen = pg.display.set_mode(RES)
         self.clock = pg.time.Clock()
