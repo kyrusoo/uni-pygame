@@ -31,4 +31,3 @@ class Boss(pygame.sprite.Sprite):
             b = Bullet(self.rect.centerx, self.rect.centery, math.degrees(angle), 4)
             all_sprites.add(b)
             enemy_bullets.add(b)
-

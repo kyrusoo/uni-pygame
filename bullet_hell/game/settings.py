@@ -17,8 +17,11 @@ BULLET_SPEED = 4
 BASE_DIR = os.path.dirname(__file__)
 ASSETS_DIR = os.path.join(BASE_DIR, 'assets')
 
-PLAYER_MAX_HEALTH = 3
+PLAYER_MAX_HEALTH = 5
 PLAYER_BULLET_DAMAGE = 10
 
 BOSS_MAX_HEALTH = 1000
 BOSS_HITBOX_RADIUS = 20
+
+BASE_DIR = os.path.dirname(__file__)
+SCORE_FILE = os.path.join(BASE_DIR, "high_score.json")

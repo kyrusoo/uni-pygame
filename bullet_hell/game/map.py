@@ -5,7 +5,6 @@ class Map:
     def __init__(self):
         self.scroll = 0
         self.speed = 2
-        # Create a simple starfield or grid
         self.bg_color = BLACK
 
     def update(self):

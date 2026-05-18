@@ -20,10 +20,10 @@ class Player(pygame.sprite.Sprite):
         speed = PLAYER_FOCUS_SPEED if keys[pygame.K_LSHIFT] else PLAYER_SPEED
 
         move = pygame.Vector2(0, 0)
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:  move.x = -1
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]: move.x = 1
-        if keys[pygame.K_UP] or keys[pygame.K_w]:    move.y = -1
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:  move.y = 1
+        if keys[pygame.K_LEFT]:  move.x = -1
+        if keys[pygame.K_RIGHT]: move.x = 1
+        if keys[pygame.K_UP]:    move.y = -1
+        if keys[pygame.K_DOWN]:  move.y = 1
 
         if move.length() > 0:
             self.pos += move.normalize() * speed
