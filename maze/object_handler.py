@@ -28,6 +28,20 @@ class ObjectHandler:
         # npc map
         add_npc(NPC(game))
         add_npc(NPC(game, pos=(11.5, 4.5)))
+        add_npc(NPC(game, pos=(1.5, 25.5)))
+        add_npc(NPC(game, pos=(1.5, 26.5)))
+        add_npc(NPC(game, pos=(5.5, 25.5)))
+        add_npc(NPC(game, pos=(5.5, 26.5)))
+        add_npc(NPC(game, pos=(14.5, 25.5)))
+        add_npc(NPC(game, pos=(14.5, 26.5)))
+        add_npc(NPC(game, pos=(10.5, 19.5)))
+        add_npc(NPC(game, pos=(14.5, 21.5)))
+        add_npc(NPC(game, pos=(13.5, 20.5)))
+        
+        
+        
+        
+        
 
     def check_win(self):
         if not len(self.npc_positions):
