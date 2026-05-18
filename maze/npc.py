@@ -21,12 +21,13 @@ class NPC(AnimatedSprite):
         self.pain = False
         self.ray_cast_value = False
         self.frame_counter = 0
+        self.player_search_trigger = False
 
     def update(self):
         self.check_animation_time()
         self.get_sprite()
         self.run_logic()
-        # self.draw_ray_cast()
+        self.draw_ray_cast()
 
     def check_wall(self, x, y):
         return (x,y) not in self.game.map.world_map
@@ -38,8 +39,10 @@ class NPC(AnimatedSprite):
             self.y += dy
 
     def movement(self):
-        next_pos = self.game.player.map_pos
+        next_pos = self.game.pathfinding.get_path(self.map_pos, self.game.player.map_pos)
         next_x, next_y = next_pos
+
+        pg.draw.rect(self.game.screen, 'blue', (100 * next_x, 100 * next_y, 100, 100))
         angle = math.atan2(next_y + 0.5 - self.y, next_x + 0.5 - self.x)
         dx = math.cos(angle) * self.speed
         dy = math.sin(angle) * self.speed
@@ -81,8 +84,14 @@ class NPC(AnimatedSprite):
                 self.animate_pain()
 
             elif self.ray_cast_value:
+                self.player_search_trigger = True
                 self.animate(self.walk_images)
                 self.movement()
+
+            elif self.player_search_trigger:
+                self.animate(self.walk_images)
+                self.movement()
+
 
             else:
                 self.animate(self.idle_images)
