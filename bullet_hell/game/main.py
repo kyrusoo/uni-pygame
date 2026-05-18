@@ -150,6 +150,10 @@ class Game:
 
                 if self.boss.alive():
                     self.boss.shoot(self.all_sprites, self.enemy_bullets)
+                elif self.boss.alive() != True and self.state == "PLAYING":
+                    self.save_high_score()
+                    self.state = "GAME_OVER"
+
 
                 # Updates
                 self.map.update()
