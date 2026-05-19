@@ -27,17 +27,17 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption(TITLE)
-    clock  = pygame.time.Clock()
+    clock = pygame.time.Clock()
 
     # ── Initialize scene manager (handles everything) ─────────────────────
     scene_mgr = SceneManager()
-    ui        = UI()
+    ui = UI()
 
     running = True
     while running:
         # ── Delta time ────────────────────────────────────────────────────
         raw_dt = clock.tick(FPS) / 1000.0
-        dt     = min(raw_dt, 0.05)   # clamp to avoid spiral of death
+        dt = min(raw_dt, 0.05)  # clamp to avoid spiral of death
 
         # ── Collect events ────────────────────────────────────────────────
         events = pygame.event.get()

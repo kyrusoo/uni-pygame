@@ -295,7 +295,7 @@ class SceneManager:
     def _update_boss(self, dt, keys):
         from src.scene_manager import _calc_damage
         world = self._boss_world
-        boss  = self._boss
+        boss = self._boss
 
         self.player.handle_input(keys, dt, self.atk_mgr, self.psys)
         self.player.update(dt, world, self.psys)
@@ -307,7 +307,7 @@ class SceneManager:
 
         # Player ↔ boss collision
         _resolve_boss_attacks(self.atk_mgr, self.player, boss,
-                               self.psys, self.shake)
+                              self.psys, self.shake)
 
         self.psys.update(dt)
         world.update(self.player.rect, dt)

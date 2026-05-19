@@ -7,53 +7,52 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-
 # ── Item categories ───────────────────────────────────────────────────────────
-CATEGORY_WEAPON   = "weapon"
-CATEGORY_ARMOR    = "armor"
+CATEGORY_WEAPON = "weapon"
+CATEGORY_ARMOR = "armor"
 CATEGORY_RESOURCE = "resource"
 CATEGORY_CONSUMABLE = "consumable"
 
 # ── Weapon sub-types ──────────────────────────────────────────────────────────
-WTYPE_MELEE  = "melee"
+WTYPE_MELEE = "melee"
 WTYPE_RANGED = "ranged"
 
 # ── Armor slots ───────────────────────────────────────────────────────────────
-SLOT_HEAD  = "head"
-SLOT_BODY  = "body"
-SLOT_LEGS  = "legs"
+SLOT_HEAD = "head"
+SLOT_BODY = "body"
+SLOT_LEGS = "legs"
 
 
 @dataclass
 class Item:
     """Base item record. All fields are plain data — no game logic."""
-    id:          str
-    name:        str
-    category:    str
-    description: str   = ""
-    stackable:   bool  = True
-    max_stack:   int   = 99
+    id: str
+    name: str
+    category: str
+    description: str = ""
+    stackable: bool = True
+    max_stack: int = 99
 
     # Weapon stats (if category == CATEGORY_WEAPON)
     weapon_type: Optional[str] = None
-    damage:      int  = 0
-    attack_rate: float = 0.35   # seconds between swings
-    attack_range:int  = 70      # px reach (melee) / irrelevant for ranged
-    mana_cost:   int  = 0       # ranged: mana per shot
-    proj_speed:  float = 0.0    # ranged: projectile speed
-    knockback:   float = 300.0
+    damage: int = 0
+    attack_rate: float = 0.35  # seconds between swings
+    attack_range: int = 70  # px reach (melee) / irrelevant for ranged
+    mana_cost: int = 0  # ranged: mana per shot
+    proj_speed: float = 0.0  # ranged: projectile speed
+    knockback: float = 300.0
 
     # Armor stats (if category == CATEGORY_ARMOR)
-    armor_slot:  Optional[str] = None
-    defense:     int  = 0
+    armor_slot: Optional[str] = None
+    defense: int = 0
 
     # Visual — simple color used for pixel-art placeholder sprite
-    color:       tuple = (180, 180, 180)
-    color2:      tuple = (120, 120, 120)   # accent / blade color
+    color: tuple = (180, 180, 180)
+    color2: tuple = (120, 120, 120)  # accent / blade color
 
     # Consumable
-    heal_hp:    int = 0
-    heal_mana:  int = 0
+    heal_hp: int = 0
+    heal_mana: int = 0
 
 
 # =============================================================================
@@ -63,13 +62,14 @@ class Item:
 
 ITEMS: dict[str, Item] = {}
 
+
 def _reg(item: Item) -> Item:
     ITEMS[item.id] = item
     return item
 
 
 # ── Resources ─────────────────────────────────────────────────────────────────
-_reg(Item("wood",  "Wood",  CATEGORY_RESOURCE,
+_reg(Item("wood", "Wood", CATEGORY_RESOURCE,
           "Basic crafting material. Dropped by trees.",
           color=(139, 90, 43)))
 _reg(Item("stone", "Stone", CATEGORY_RESOURCE,
@@ -81,7 +81,7 @@ _reg(Item("stick", "Stick", CATEGORY_RESOURCE,
 _reg(Item("mob_fang", "Mob Fang", CATEGORY_RESOURCE,
           "Dropped by Goblins. Used in upgrades.",
           color=(220, 200, 80), max_stack=50))
-_reg(Item("mob_eye",  "Mob Eye",  CATEGORY_RESOURCE,
+_reg(Item("mob_eye", "Mob Eye", CATEGORY_RESOURCE,
           "Dropped by Eyebats. Used in upgrades.",
           color=(180, 40, 40), max_stack=50))
 _reg(Item("mid_boss_core", "Guardian Core", CATEGORY_RESOURCE,
@@ -162,7 +162,6 @@ _reg(Item("stone_leggings", "Stone Leggings", CATEGORY_ARMOR,
           armor_slot=SLOT_LEGS, defense=4,
           color=(130, 130, 130), color2=(90, 90, 90)))
 
-
 # =============================================================================
 # ── Crafting Recipes ──────────────────────────────────────────────────────────
 # recipe: { result_id: [(ingredient_id, qty), ...] }
@@ -171,25 +170,25 @@ _reg(Item("stone_leggings", "Stone Leggings", CATEGORY_ARMOR,
 
 RECIPES: dict[str, list[tuple[str, int]]] = {
     # Sticks
-    "stick":              [("wood", 1)],
+    "stick": [("wood", 1)],
 
     # Weapons
-    "stick_weapon":       [("stick", 2)],
-    "wooden_sword":       [("wood", 8), ("stick", 2)],
-    "stone_sword":        [("stone", 12), ("wood", 4), ("stick", 2)],
-    "bone_sword":         [("mob_fang", 8), ("stick", 4)],
+    "stick_weapon": [("stick", 2)],
+    "wooden_sword": [("wood", 8), ("stick", 2)],
+    "stone_sword": [("stone", 12), ("wood", 4), ("stick", 2)],
+    "bone_sword": [("mob_fang", 8), ("stick", 4)],
 
     # Wooden armor
-    "wooden_helmet":      [("wood", 10)],
-    "wooden_chestplate":  [("wood", 18)],
-    "wooden_leggings":    [("wood", 12)],
+    "wooden_helmet": [("wood", 10)],
+    "wooden_chestplate": [("wood", 18)],
+    "wooden_leggings": [("wood", 12)],
 
     # Stone armor
-    "stone_helmet":       [("stone", 14), ("wood", 4)],
-    "stone_chestplate":   [("stone", 22), ("wood", 8)],
-    "stone_leggings":     [("stone", 16), ("wood", 4)],
+    "stone_helmet": [("stone", 14), ("wood", 4)],
+    "stone_chestplate": [("stone", 22), ("wood", 8)],
+    "stone_leggings": [("stone", 16), ("wood", 4)],
 
     # Potions
-    "health_potion":      [("wood", 2), ("mob_eye", 1)],
-    "mana_potion":        [("wood", 2), ("mob_fang", 1)],
+    "health_potion": [("wood", 2), ("mob_eye", 1)],
+    "mana_potion": [("wood", 2), ("mob_fang", 1)],
 }

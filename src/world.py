@@ -39,7 +39,7 @@ class Camera:
 
     def follow(self, target_rect: pygame.Rect, dt: float):
         """Lerp toward keeping target centered."""
-        target_x = target_rect.centerx - SCREEN_WIDTH  // 2
+        target_x = target_rect.centerx - SCREEN_WIDTH // 2
         target_y = target_rect.centery - SCREEN_HEIGHT // 2
 
         lerp_speed = CAMERA_LERP * dt
@@ -47,7 +47,7 @@ class Camera:
         self.y += (target_y - self.y) * lerp_speed
 
         # Clamp to arena bounds
-        self.x = max(0, min(self.x, ARENA_WIDTH  - SCREEN_WIDTH))
+        self.x = max(0, min(self.x, ARENA_WIDTH - SCREEN_WIDTH))
         self.y = max(0, min(self.y, ARENA_HEIGHT - SCREEN_HEIGHT))
 
     @property
@@ -84,16 +84,16 @@ class ParallaxBackground:
         # Distant "mountain" silhouettes per layer
         for i, layer in enumerate(self._layers):
             scroll = camera_x * layer["factor"]
-            color  = layer["color"]
+            color = layer["color"]
             # Draw simple repeating arch shapes
             for col in range(-1, SCREEN_WIDTH // 200 + 2):
                 bx = int(col * 200 - scroll % 200)
                 by = SCREEN_HEIGHT - 200 - i * 60
                 # Arch / hill silhouette
                 points = [
-                    (bx,       SCREEN_HEIGHT),
-                    (bx,       by + 80),
-                    (bx + 40,  by + 20),
+                    (bx, SCREEN_HEIGHT),
+                    (bx, by + 80),
+                    (bx + 40, by + 20),
                     (bx + 100, by),
                     (bx + 160, by + 20),
                     (bx + 200, by + 80),
@@ -103,9 +103,9 @@ class ParallaxBackground:
 
         # Animated glowing runes in background (ambience)
         for k in range(6):
-            t    = self._time * 0.5 + k * 1.1
-            rx   = int(80 + k * 200 - (camera_x * 0.08) % SCREEN_WIDTH)
-            ry   = int(SCREEN_HEIGHT * 0.35 + math.sin(t) * 12)
+            t = self._time * 0.5 + k * 1.1
+            rx = int(80 + k * 200 - (camera_x * 0.08) % SCREEN_WIDTH)
+            ry = int(SCREEN_HEIGHT * 0.35 + math.sin(t) * 12)
             glow = int(120 + math.sin(t * 1.3) * 40)
             pygame.draw.circle(surface, (glow, glow // 3, glow // 6),
                                (rx % SCREEN_WIDTH, ry), 4)
@@ -118,8 +118,8 @@ class World:
     """
 
     def __init__(self):
-        self.camera    = Camera()
-        self.bg        = ParallaxBackground()
+        self.camera = Camera()
+        self.bg = ParallaxBackground()
         self.platforms: list[Platform] = self._build_arena()
 
     def _build_arena(self) -> list[Platform]:
@@ -135,16 +135,16 @@ class World:
         # Symmetrical layout suitable for a boss fight
         layout = [
             # (x,    y,   w,  h)
-            (400,  640, 250, 24),
-            (800,  560, 300, 24),
+            (400, 640, 250, 24),
+            (800, 560, 300, 24),
             (1200, 490, 250, 24),
-            (1600, 430, 300, 24),   # centre-ish (boss area)
+            (1600, 430, 300, 24),  # centre-ish (boss area)
             (2000, 490, 250, 24),
             (2400, 560, 300, 24),
             (2800, 640, 250, 24),
 
             # Upper tier
-            (600,  420, 180, 24),
+            (600, 420, 180, 24),
             (1100, 360, 200, 24),
             (1550, 310, 250, 24),
             (2000, 360, 200, 24),
@@ -170,11 +170,11 @@ class World:
         on_ground = False
         for plat in self.platforms:
             if entity_rect.colliderect(plat.rect):
-                if vy >= 0:   # falling → land on top
+                if vy >= 0:  # falling → land on top
                     if entity_rect.bottom > plat.rect.top and \
-                       entity_rect.centery < plat.rect.top + 40:
+                            entity_rect.centery < plat.rect.top + 40:
                         entity_rect.bottom = plat.rect.top
-                        vy       = 0.0
+                        vy = 0.0
                         on_ground = True
                 elif vy < 0:  # jumping → hit ceiling
                     entity_rect.top = plat.rect.bottom

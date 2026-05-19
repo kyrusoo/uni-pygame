@@ -7,7 +7,7 @@
 # ── Window ────────────────────────────────────────────────────────────────────
 SCREEN_WIDTH  = 1280
 SCREEN_HEIGHT = 720
-TITLE         = "Boss Rush — Terraria-Inspired Prototype"
+TITLE         = "Boss Rush"
 FPS           = 60
 
 # ── Physics ───────────────────────────────────────────────────────────────────

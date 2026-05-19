@@ -16,8 +16,8 @@
 import pygame
 import random
 import math
-from src.settings  import *
-from src.attacks   import MeleeHitbox, Projectile
+from src.settings import *
+from src.attacks import MeleeHitbox, Projectile
 from src.particles import ParticleSystem
 
 
@@ -28,28 +28,28 @@ class Mob:
 
     def __init__(self, x, y, w, h, hp, defense, speed,
                  damage, xp_reward, drops: list[tuple[str, float]]):
-        self.rect    = pygame.Rect(int(x - w // 2), int(y - h), w, h)
-        self.vx      = 0.0
-        self.vy      = 0.0
+        self.rect = pygame.Rect(int(x - w // 2), int(y - h), w, h)
+        self.vx = 0.0
+        self.vy = 0.0
         self.on_ground = False
-        self.facing  = 1
+        self.facing = 1
 
-        self.max_hp  = hp
-        self.hp      = hp
+        self.max_hp = hp
+        self.hp = hp
         self.defense = defense
-        self.speed   = speed
-        self.damage  = damage
+        self.speed = speed
+        self.damage = damage
         self.xp_reward = xp_reward
-        self.drops   = drops   # list of (item_id, drop_chance 0-1)
+        self.drops = drops  # list of (item_id, drop_chance 0-1)
 
-        self.alive        = True
+        self.alive = True
         self._iframe_timer = 0.0
-        self._atk_timer   = 0.0
-        self._hit_flash   = 0.0
-        self._dead_timer  = 0.0
+        self._atk_timer = 0.0
+        self._hit_flash = 0.0
+        self._dead_timer = 0.0
 
-        self._aggro_range = 500   # px, player must be this close to activate
-        self._active      = False
+        self._aggro_range = 500  # px, player must be this close to activate
+        self._active = False
 
     @property
     def hp_frac(self):
@@ -66,14 +66,14 @@ class Mob:
         final = max(1, raw - self.defense)
         self.hp -= final
         self._iframe_timer = 0.3
-        self._hit_flash    = 0.15
+        self._hit_flash = 0.15
         self.vx = knockback_x
         self.vy = knockback_y
         particles.emit_blood(self.rect.centerx, self.rect.centery, 8)
         particles.spawn_damage(self.rect.centerx, self.rect.top - 8, final,
                                color=C_DMG_BOSS)
         if self.hp <= 0:
-            self.hp    = 0
+            self.hp = 0
             self.alive = False
         return final
 
@@ -87,7 +87,7 @@ class Mob:
 
     def _apply_physics(self, dt, world):
         self.vy += GRAVITY * dt
-        self.vy  = min(self.vy, TERMINAL_VELOCITY)
+        self.vy = min(self.vy, TERMINAL_VELOCITY)
         self.rect.x += int(self.vx * dt)
         self.rect, self.vx = world.resolve_horizontal(self.rect, self.vx)
         self.rect.y += int(self.vy * dt)
@@ -97,7 +97,7 @@ class Mob:
     def _move_toward(self, tx, stop=60):
         dx = tx - self.rect.centerx
         if abs(dx) > stop:
-            self.vx     = math.copysign(self.speed, dx)
+            self.vx = math.copysign(self.speed, dx)
             self.facing = int(math.copysign(1, dx))
         else:
             self.vx = 0.0
@@ -107,8 +107,8 @@ class Mob:
             self._dead_timer += dt
             return
         self._iframe_timer = max(0.0, self._iframe_timer - dt)
-        self._atk_timer    = max(0.0, self._atk_timer    - dt)
-        self._hit_flash    = max(0.0, self._hit_flash    - dt)
+        self._atk_timer = max(0.0, self._atk_timer - dt)
+        self._hit_flash = max(0.0, self._hit_flash - dt)
 
         # Activate when player is close enough
         dx = abs(self.rect.centerx - player_rect.centerx)
@@ -132,7 +132,7 @@ class Mob:
             return
         if abs(self.rect.centerx - player_rect.centerx) < reach + 30:
             hb_w = reach
-            hx   = self.rect.right if self.facing == 1 else self.rect.left - hb_w
+            hx = self.rect.right if self.facing == 1 else self.rect.left - hb_w
             attack_manager.add_hitbox(MeleeHitbox(
                 hx, self.rect.top + 10, hb_w, self.rect.h - 10,
                 damage=self.damage, owner='mob',
@@ -151,7 +151,7 @@ class Mob:
         # HP bar above
         if self.hp < self.max_hp:
             bar_w = self.rect.w
-            fill  = int(bar_w * self.hp_frac)
+            fill = int(bar_w * self.hp_frac)
             pygame.draw.rect(surface, (80, 10, 10), (cx, cy - 8, bar_w, 5))
             pygame.draw.rect(surface, (220, 50, 50), (cx, cy - 8, fill, 5))
 
@@ -195,7 +195,7 @@ class Goblin(Mob):
             (cx + self.W, cy), (cx + self.W + 5, cy - 8), (cx + self.W - 4, cy)])
         if self.hp < self.max_hp:
             bar_w = self.W
-            fill  = int(bar_w * self.hp_frac)
+            fill = int(bar_w * self.hp_frac)
             pygame.draw.rect(surface, (80, 10, 10), (cx, cy - 8, bar_w, 5))
             pygame.draw.rect(surface, (220, 50, 50), (cx, cy - 8, fill, 5))
 
@@ -210,15 +210,15 @@ class Eyebat(Mob):
                          hp=25, defense=0, speed=110, damage=8,
                          xp_reward=12,
                          drops=[("mob_eye", 0.7), ("stick", 0.3)])
-        self._hover_y    = float(y - 60)
-        self._bob_t      = random.uniform(0, math.pi * 2)
+        self._hover_y = float(y - 60)
+        self._bob_t = random.uniform(0, math.pi * 2)
         self._shoot_timer = random.uniform(2.0, 4.0)
         self._aggro_range = 600
 
     def _apply_physics(self, dt, world):
         # Eyebat flies — ignore gravity, just hover
         self._bob_t += dt * 2.0
-        target_y     = self._hover_y + math.sin(self._bob_t) * 20
+        target_y = self._hover_y + math.sin(self._bob_t) * 20
         self.rect.y += int((target_y - self.rect.y) * 5 * dt)
 
     def _ai(self, dt, player_rect, attack_manager, particles):
@@ -234,7 +234,7 @@ class Eyebat(Mob):
             dx = player_rect.centerx - cx
             dy = player_rect.centery - cy
             dist = math.hypot(dx, dy) or 1
-            spd  = 260.0
+            spd = 260.0
             proj = Projectile(cx, cy, dx / dist * spd, dy / dist * spd,
                               damage=self.damage, owner='mob',
                               color=(200, 50, 200), radius=6, lifetime=3.0)
@@ -259,7 +259,7 @@ class Eyebat(Mob):
                            (cx + self.W // 2, cy + self.H // 2), 3)
         if self.hp < self.max_hp:
             bar_w = self.W + 14
-            fill  = int(bar_w * self.hp_frac)
+            fill = int(bar_w * self.hp_frac)
             pygame.draw.rect(surface, (80, 10, 10), (cx - 7, cy - 10, bar_w, 5))
             pygame.draw.rect(surface, (220, 50, 50), (cx - 7, cy - 10, fill, 5))
 
@@ -295,7 +295,7 @@ class StoneGolem(Mob):
                          (cx + 10, cy + 20), (cx + 18, cy + 40), 2)
         if self.hp < self.max_hp:
             bar_w = self.W
-            fill  = int(bar_w * self.hp_frac)
+            fill = int(bar_w * self.hp_frac)
             pygame.draw.rect(surface, (80, 10, 10), (cx, cy - 8, bar_w, 5))
             pygame.draw.rect(surface, (220, 50, 50), (cx, cy - 8, fill, 5))
 
@@ -311,22 +311,22 @@ class MediumBoss(Mob):
         super().__init__(x, y, w, h, hp=hp, defense=defense, speed=speed,
                          damage=damage, xp_reward=120,
                          drops=[("mid_boss_core", 1.0),
-                                 ("mob_fang", 0.8),
-                                 ("mob_eye", 0.6)])
-        self.name  = name
+                                ("mob_fang", 0.8),
+                                ("mob_eye", 0.6)])
+        self.name = name
         self.color = color
-        self._phase2    = False
-        self._state     = "patrol"
-        self._state_t   = 2.0
+        self._phase2 = False
+        self._state = "patrol"
+        self._state_t = 2.0
         self._telegraph = 0.0
-        self._pending   = None
+        self._pending = None
         self._aggro_range = 1200
 
     def _check_phase(self):
         if not self._phase2 and self.hp_frac < 0.5:
-            self._phase2  = True
-            self.speed   *= 1.4
-            self.damage   = int(self.damage * 1.3)
+            self._phase2 = True
+            self.speed *= 1.4
+            self.damage = int(self.damage * 1.3)
 
     def update(self, dt, player_rect, attack_manager, particles, world):
         if not self.alive:
@@ -337,8 +337,8 @@ class MediumBoss(Mob):
                     self.rect.centery + random.randint(-20, 20), 10)
             return
         self._iframe_timer = max(0.0, self._iframe_timer - dt)
-        self._atk_timer    = max(0.0, self._atk_timer    - dt)
-        self._hit_flash    = max(0.0, self._hit_flash    - dt)
+        self._atk_timer = max(0.0, self._atk_timer - dt)
+        self._hit_flash = max(0.0, self._hit_flash - dt)
         self._check_phase()
 
         dx = abs(self.rect.centerx - player_rect.centerx)
@@ -356,19 +356,19 @@ class MediumBoss(Mob):
             self._move_toward(player_rect.centerx, stop=80)
             if self._state_t <= 0:
                 self._telegraph = 0.8
-                self._pending   = random.choice(["slam", "charge", "volley"])
-                self._state     = "telegraph"
-                self._state_t   = self._telegraph
+                self._pending = random.choice(["slam", "charge", "volley"])
+                self._state = "telegraph"
+                self._state_t = self._telegraph
         elif self._state == "telegraph":
             self.vx = 0
             if self._state_t <= 0:
                 self._fire_attack(self._pending, player_rect, attack_manager, particles)
-                self._state   = "cooldown"
+                self._state = "cooldown"
                 self._state_t = 2.5 if not self._phase2 else 1.6
         elif self._state == "cooldown":
             self._move_toward(player_rect.centerx, stop=100)
             if self._state_t <= 0:
-                self._state   = "patrol"
+                self._state = "patrol"
                 self._state_t = 0.5
 
     def _fire_attack(self, name, player_rect, attack_manager, particles):
@@ -390,14 +390,14 @@ class MediumBoss(Mob):
         elif name == "volley":
             for i in range(5):
                 angle = -math.pi / 2 + (i - 2) * 0.35
-                spd   = 280.0
-                proj  = Projectile(bx, by,
-                                   math.cos(angle) * spd,
-                                   math.sin(angle) * spd,
-                                   damage=self.damage,
-                                   owner='mob',
-                                   color=self.color,
-                                   radius=9)
+                spd = 280.0
+                proj = Projectile(bx, by,
+                                  math.cos(angle) * spd,
+                                  math.sin(angle) * spd,
+                                  damage=self.damage,
+                                  owner='mob',
+                                  color=self.color,
+                                  radius=9)
                 attack_manager.add_projectile(proj)
             particles.emit_fire(bx, by, 16)
 
@@ -415,15 +415,15 @@ class MediumBoss(Mob):
         # Telegraph warning ring
         if self._state == "telegraph":
             frac = 1.0 - self._state_t / 0.8
-            r    = int(max(self.rect.w, self.rect.h) * 0.7 + frac * 30)
+            r = int(max(self.rect.w, self.rect.h) * 0.7 + frac * 30)
             if int(frac * 8) % 2 == 0:
                 pygame.draw.circle(surface, (255, 80, 0),
                                    (cx + self.rect.w // 2, cy + self.rect.h // 2),
                                    r, 3)
         # HP bar
         bar_w = self.rect.w + 20
-        fill  = int(bar_w * self.hp_frac)
-        bx2   = cx - 10
+        fill = int(bar_w * self.hp_frac)
+        bx2 = cx - 10
         pygame.draw.rect(surface, (80, 10, 10), (bx2, cy - 14, bar_w, 8))
         pygame.draw.rect(surface, (220, 50, 50), (bx2, cy - 14, fill, 8))
         name_s = pygame.font.SysFont("monospace", 11, bold=True).render(
@@ -465,7 +465,7 @@ class MobManager:
         drops = []
         for mob in self.mobs:
             mob.update(dt, player_rect, attack_manager, particles, world)
-            if not mob.alive and mob._dead_timer < dt * 2:   # just died this frame
+            if not mob.alive and mob._dead_timer < dt * 2:  # just died this frame
                 drops.extend(mob.get_drops())
         self.mobs = [m for m in self.mobs
                      if m.alive or m._dead_timer < 3.0]
@@ -484,7 +484,7 @@ class MobManager:
         from src.settings import PLAYER_CRIT_CHANCE, PLAYER_CRIT_MULTI
         import random, math as _math
         xp_gained = 0
-        consumed   = set()
+        consumed = set()
 
         for proj in attack_manager.projectiles:
             if proj.owner != 'player' or not proj.alive:
@@ -493,10 +493,10 @@ class MobManager:
                 if not mob.alive:
                     continue
                 if proj.rect.colliderect(mob.rect):
-                    raw   = proj.damage
-                    crit  = random.random() < PLAYER_CRIT_CHANCE
+                    raw = proj.damage
+                    crit = random.random() < PLAYER_CRIT_CHANCE
                     final = max(1, int(raw * PLAYER_CRIT_MULTI) if crit
-                                else raw - mob.defense)
+                    else raw - mob.defense)
                     mob.take_damage(final, particles, knockback_x=proj.vx * 0.2)
                     if not mob.alive:
                         xp_gained += mob.xp_reward
@@ -511,10 +511,10 @@ class MobManager:
                 if not mob.alive:
                     continue
                 if hb.rect.colliderect(mob.rect):
-                    raw   = hb.damage
-                    crit  = random.random() < PLAYER_CRIT_CHANCE
+                    raw = hb.damage
+                    crit = random.random() < PLAYER_CRIT_CHANCE
                     final = max(1, int(raw * PLAYER_CRIT_MULTI) if crit
-                                else raw - mob.defense)
+                    else raw - mob.defense)
                     mob.take_damage(final, particles,
                                     knockback_x=hb.knockback[0],
                                     knockback_y=hb.knockback[1])

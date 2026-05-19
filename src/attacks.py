@@ -18,15 +18,15 @@ class Projectile:
     def __init__(self, x, y, vx, vy, damage, owner,
                  color=C_BOSS_PROJ, radius=8, lifetime=3.0,
                  pierce=False):
-        self.x, self.y   = float(x), float(y)
+        self.x, self.y = float(x), float(y)
         self.vx, self.vy = float(vx), float(vy)
-        self.damage      = damage
-        self.owner       = owner
-        self.color       = color
-        self.radius      = radius
-        self.lifetime    = lifetime
-        self.alive       = True
-        self.pierce      = pierce   # passes through without destroying self
+        self.damage = damage
+        self.owner = owner
+        self.color = color
+        self.radius = radius
+        self.lifetime = lifetime
+        self.alive = True
+        self.pierce = pierce  # passes through without destroying self
         # glow / trail tick
         self._trail_timer = 0.0
 
@@ -40,8 +40,8 @@ class Projectile:
         return self.x, self.y
 
     def update(self, dt):
-        self.x        += self.vx * dt
-        self.y        += self.vy * dt
+        self.x += self.vx * dt
+        self.y += self.vy * dt
         self.lifetime -= dt
         if self.lifetime <= 0:
             self.alive = False
@@ -89,12 +89,12 @@ class MeleeHitbox:
 
     def __init__(self, x, y, w, h, damage, owner,
                  knockback_x=0, knockback_y=-120, duration=0.12):
-        self.rect      = pygame.Rect(x, y, w, h)
-        self.damage    = damage
-        self.owner     = owner
+        self.rect = pygame.Rect(x, y, w, h)
+        self.damage = damage
+        self.owner = owner
         self.knockback = (knockback_x, knockback_y)
-        self.lifetime  = duration
-        self.alive     = True
+        self.lifetime = duration
+        self.alive = True
 
     def update(self, dt):
         self.lifetime -= dt
@@ -120,7 +120,7 @@ class AttackManager:
 
     def __init__(self):
         self.projectiles: list[Projectile | Fireball] = []
-        self.hitboxes:    list[MeleeHitbox]           = []
+        self.hitboxes: list[MeleeHitbox] = []
 
     def add_projectile(self, proj: Projectile):
         self.projectiles.append(proj)
@@ -135,7 +135,7 @@ class AttackManager:
         for h in self.hitboxes:
             h.update(dt)
         self.projectiles = [p for p in self.projectiles if p.alive]
-        self.hitboxes    = [h for h in self.hitboxes    if h.alive]
+        self.hitboxes = [h for h in self.hitboxes if h.alive]
 
     def draw(self, surface, camera_offset):
         for p in self.projectiles:
