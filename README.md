@@ -1,6 +1,6 @@
 # uni-pygame
 
-A collection of two games built with Python and Pygame, developed as a university project.
+A collection of three games built with Python and Pygame, developed as a university project.
 
 ---
 
@@ -10,6 +10,7 @@ A collection of two games built with Python and Pygame, developed as a universit
 |---|---|---|
 | 🔦 | [Maze](#-maze--doom-like-fps) | First-Person Shooter |
 | 🚀 | [Space Boss](#-space-boss--bullet-hell) | Bullet Hell Shooter |
+| ⚔️ | [Boss Rush](#️-boss-rush--terraria-inspired-2d-rpg) | 2D Action RPG |
 
 ---
 
@@ -146,12 +147,73 @@ uni-pygame/
 
 ---
 
+## ⚔️ Boss Rush — Terraria-Inspired 2D RPG
+
+A pixel-art style boss-fight game set in a dark-fantasy side-scrolling arena. Fight **Malvortex the Dread Titan** across a tense multi-phase encounter with a full RPG combat system.
+
+### Features
+
+- **Multi-phase boss AI** — FSM-driven boss with escalating attack patterns; enrages at ≤35% HP
+- **Full combat system** — melee swings, magic bolts, dash with invincibility frames, and AABB collision
+- **Leveling system** — gain XP, level up for stat boosts (+15 HP, +3 ATK, +1 DEF, +10 mana)
+- **Particle system** — pooled emitters for hits, fire, magic, dust, and floating damage numbers
+- **Screen shake** — trauma²-based camera displacement on heavy hits
+- **Smooth camera** — lerp-based follow clamped to arena bounds
+
+### Installation & Running
+
+```bash
+git clone https://github.com/kyrusoo/uni-pygame.git
+cd uni-pygame
+
+python3 boss_rush/main.py
+```
+
+### Controls
+
+| Input | Action |
+|---|---|
+| `A` / `←` | Move left |
+| `D` / `→` | Move right |
+| `Space` / `W` / `↑` | Jump |
+| `Shift` | Dash (invincible) |
+| `Z` / `J` | Melee swing |
+| `X` / `K` | Magic bolt |
+| `Escape` | Pause |
+| `R` | Restart |
+| `Q` | Quit |
+
+### Project Structure
+
+```
+uni-pygame/
+└── boss_rush/
+    ├── main.py              # Entry point; game loop, collision resolution
+    └── src/
+        ├── settings.py      # All constants (tweak here first)
+        ├── world.py         # Arena geometry, platforms, camera, parallax BG
+        ├── player.py        # Movement, dash, melee, ranged, leveling
+        ├── boss.py          # Multi-phase AI FSM, attack patterns
+        ├── attacks.py       # Projectile & melee hitbox objects
+        ├── particles.py     # Particle emitters, damage numbers, screen shake
+        └── ui.py            # HUD, boss bar, pause/game-over/victory screens
+```
+
+### Boss AI — Phase Overview
+
+| Phase | HP Threshold | Attacks |
+|---|---|---|
+| Phase 1 | 100% – 36% | Projectile Volley, Ground Slam |
+| Phase 2 | ≤ 35% (Enrage) | + Charge Rush, Fireball Arc; cooldowns –35% |
+
+---
+
 ## Authors
 
 Developed as a university project.
 
-| Branch | Contributor |
-|---|---|
-| `dev_kyrusoo` | Maze (FPS) |
-| `dev_tashlyg` | Space Boss (Bullet Hell) |
-| `dev_xolonvr` | — |
+| Branch | Contributor | Game |
+|---|---|---|
+| `dev_kyrusoo` | kyrusoo | Maze (FPS) |
+| `dev_tashlyg` | tashlyg | Space Boss (Bullet Hell) |
+| `dev_xolonvr` | xolonvr | Boss Rush (2D RPG) |
