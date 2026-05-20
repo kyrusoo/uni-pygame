@@ -84,6 +84,8 @@ A first-person shooter inspired by classic 90s ray-casting games like Doom and W
 
 Maze uses a raycasting engine to render a 3D perspective from a 2D grid map — the same technique used in the original Doom engine. Enemy NPCs actively hunt the player using a BFS pathfinding algorithm, making them a real threat in tight corridors.
 
+Core engine architecture built using StanislavPetrovV's MIT-licensed framework.
+
 ### Features
 
 - **Raycasting renderer** — textured walls, floor, and a sky rendered in real time
