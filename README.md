@@ -10,6 +10,8 @@ Maze uses a raycasting engine to render a 3D perspective from a 2D grid map — 
 
 The game features a full gameplay loop: roam the map, fight enemies, take damage, recover health, and either survive or face a game over screen.
 
+Core engine architecture built using StanislavPetrovV's MIT-licensed framework.
+
 ---
 
 ## Features
